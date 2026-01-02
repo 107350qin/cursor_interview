@@ -77,7 +77,6 @@ function LatestQuestions() {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px 0' }}>
-      <Title level={2} style={{ textAlign: 'center', marginBottom: '30px' }}>最新题目</Title>
       <Row gutter={[16, 16]}>
         {questions.map((item, index) => (
           <Col key={item.id} xs={24} sm={12} md={8} lg={6}>

@@ -16,10 +16,11 @@ public class CategoryService {
     private CategoryMapper categoryMapper;
 
     public Result<List<Category>> getAllCategories() {
-        // 根据questionCount进行排序
+        // 根据questionCount进行排序,并且过滤掉questionCount为0的分类
         List<Category> categories = categoryMapper.selectList(
                 new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<Category>()
                         .orderByDesc("question_count")
+                        .ne("question_count", 0)    
         );
         return Result.success(categories);
     }

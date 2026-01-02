@@ -26,7 +26,7 @@ function Categories() {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      <Card title="分类导航" style={{ marginBottom: '24px' }}>
+      <Card title={`总共 ${categories.length} 个分类，${categories.reduce((acc, cur) => acc + cur.questionCount, 0)} 道题目`} style={{ marginBottom: '24px' }}>
         <Space wrap>
           {categories.map(cat => (
             <Card.Grid

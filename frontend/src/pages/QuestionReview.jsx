@@ -17,10 +17,12 @@ function QuestionReview() {
     total: 0,
   })
   const [keyword, setKeyword] = useState('')
-  const [statusFilter, setStatusFilter] = useState(null)
+  const [statusFilter, setStatusFilter] = useState(0)
   const [detailModalVisible, setDetailModalVisible] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState(null)
-  
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
+  const [selectedRows, setSelectedRows] = useState([])
+
   const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN'
 
   useEffect(() => {
@@ -71,37 +73,96 @@ function QuestionReview() {
     setDetailModalVisible(true)
   }
 
-  const handleApprove = async (question) => {
+  // 通用的审核方法，支持单个ID或ID数组
+  const reviewQuestion = async (questionIdOrIds, status, showMessage = true) => {
     try {
-      const res = await api.put(`/admin/questions/${question.id}/review`, null, {
-        params: { status: 1 }
+      // 统一转换为数组格式
+      const questionIds = Array.isArray(questionIdOrIds) ? questionIdOrIds : [questionIdOrIds]
+
+      const res = await api.put(`/admin/questions/review`, {
+        questionIds,
+        status
       })
+
       if (res.code === 200) {
-        message.success('题目审核通过')
-        loadAllQuestions()
+        if (showMessage) {
+          const messageText = status === 1 ? '题目审核通过' : '题目审核拒绝'
+          const countText = questionIds.length > 1 ? ` (${questionIds.length}题)` : ''
+          message.success(messageText + countText)
+        }
+        return true
       } else {
-        message.error(res.message || '审核失败')
+        if (showMessage) {
+          message.error(res.message || '审核失败')
+        }
+        return false
       }
     } catch (error) {
-      message.error('审核失败')
+      if (showMessage) {
+        message.error('审核失败')
+      }
       console.error(error)
+      return false
+    }
+  }
+
+  const handleApprove = async (question) => {
+    const success = await reviewQuestion(question.id, 1)
+    if (success) {
+      loadAllQuestions()
     }
   }
 
   const handleReject = async (question) => {
+    const success = await reviewQuestion(question.id, 2)
+    if (success) {
+      loadAllQuestions()
+    }
+  }
+
+  // 批量通过
+  const handleBatchApprove = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('请选择要审核的题目')
+      return
+    }
+
     try {
-      const res = await api.put(`/admin/questions/${question.id}/review`, null, {
-        params: { status: 2 }
-      })
-      if (res.code === 200) {
-        message.success('题目审核拒绝')
+      setLoading(true)
+      const success = await reviewQuestion(selectedRowKeys, 1)
+      if (success) {
         loadAllQuestions()
-      } else {
-        message.error(res.message || '审核失败')
+        setSelectedRowKeys([]) // 清空选择
+        setSelectedRows([])
       }
     } catch (error) {
-      message.error('审核失败')
+      message.error('批量审核失败')
       console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 批量拒绝
+  const handleBatchReject = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('请选择要审核的题目')
+      return
+    }
+
+    try {
+      setLoading(true)
+      const success = await reviewQuestion(selectedRowKeys, 2)
+      if (success) {
+        loadAllQuestions()
+        setSelectedRowKeys([]) // 清空选择
+        setSelectedRows([])
+      }
+    } catch (error) {
+      message.error('批量审核失败')
+      console.error(error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -123,6 +184,15 @@ function QuestionReview() {
     }
     const diffInfo = difficultyMap[difficulty] || { color: 'default', text: difficulty }
     return <Tag color={diffInfo.color}>{diffInfo.text}</Tag>
+  }
+
+  // 表格多选配置
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys, newSelectedRows) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+      setSelectedRows(newSelectedRows)
+    },
   }
 
   const columns = [
@@ -195,20 +265,8 @@ function QuestionReview() {
                 type="link"
                 icon={<CheckOutlined />}
                 style={{ color: '#52c41a', padding: '0 4px' }}
-                onClick={() => {
-                  api.put(`/admin/questions/${record.id}/review`, null, {
-                    params: { status: 1 }
-                  }).then(res => {
-                    if (res.code === 200) {
-                      message.success('题目已通过')
-                      loadAllQuestions()
-                    } else {
-                      message.error(res.message || '操作失败')
-                    }
-                  }).catch(error => {
-                    message.error('操作失败')
-                    console.error(error)
-                  })
+                onClick={async () => {
+                  await handleApprove(record.id)
                 }}
               >
                 点击通过
@@ -218,20 +276,8 @@ function QuestionReview() {
                 danger
                 icon={<CloseOutlined />}
                 style={{ padding: '0 4px' }}
-                onClick={() => {
-                  api.put(`/admin/questions/${record.id}/review`, null, {
-                    params: { status: 2 }
-                  }).then(res => {
-                    if (res.code === 200) {
-                      message.success('题目已拒绝')
-                      loadAllQuestions()
-                    } else {
-                      message.error(res.message || '操作失败')
-                    }
-                  }).catch(error => {
-                    message.error('操作失败')
-                    console.error(error)
-                  })
+                onClick={async () => {
+                  await handleReject(record.id)
                 }}
               >
                 点击拒绝
@@ -243,20 +289,8 @@ function QuestionReview() {
               danger
               icon={<CloseOutlined />}
               style={{ padding: '0 4px' }}
-              onClick={() => {
-                api.put(`/admin/questions/${record.id}/review`, null, {
-                  params: { status: 2 }
-                }).then(res => {
-                  if (res.code === 200) {
-                    message.success('题目已拒绝')
-                    loadAllQuestions()
-                  } else {
-                    message.error(res.message || '操作失败')
-                  }
-                }).catch(error => {
-                  message.error('操作失败')
-                  console.error(error)
-                })
+              onClick={async () => {
+                await handleReject(record.id)
               }}
             >
               点击拒绝
@@ -266,20 +300,8 @@ function QuestionReview() {
               type="link"
               icon={<CheckOutlined />}
               style={{ color: '#52c41a', padding: '0 4px' }}
-              onClick={() => {
-                api.put(`/admin/questions/${record.id}/review`, null, {
-                  params: { status: 1 }
-                }).then(res => {
-                  if (res.code === 200) {
-                    message.success('题目已通过')
-                    loadAllQuestions()
-                  } else {
-                    message.error(res.message || '操作失败')
-                  }
-                }).catch(error => {
-                  message.error('操作失败')
-                  console.error(error)
-                })
+              onClick={async () => {
+                await handleApprove(record.id)
               }}
             >
               点击通过
@@ -297,7 +319,7 @@ function QuestionReview() {
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
       <Card title="题目审核" style={{ marginBottom: '16px' }}>
-        <div style={{ marginBottom: '16px', display: 'flex', gap: '16px' }}>
+        <div style={{ marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
           <Search
             placeholder="搜索题目标题或标签"
             value={keyword}
@@ -318,6 +340,23 @@ function QuestionReview() {
             <Option value={1}>已通过</Option>
             <Option value={2}>已拒绝</Option>
           </Select>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+            <Button
+              type="primary"
+              onClick={handleBatchApprove}
+              disabled={selectedRowKeys.length === 0}
+              style={{ background: '#52c41a', borderColor: '#52c41a' }}
+            >
+              批量通过({selectedRowKeys.length})
+            </Button>
+            <Button
+              danger
+              onClick={handleBatchReject}
+              disabled={selectedRowKeys.length === 0}
+            >
+              批量拒绝({selectedRowKeys.length})
+            </Button>
+          </div>
         </div>
 
         <Table
@@ -339,6 +378,7 @@ function QuestionReview() {
               })
             },
           }}
+          rowSelection={rowSelection}
         />
       </Card>
 

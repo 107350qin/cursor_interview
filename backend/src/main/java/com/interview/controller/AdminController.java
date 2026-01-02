@@ -9,9 +9,12 @@ import com.interview.entity.Question;
 import com.interview.entity.User;
 import com.interview.service.QuestionService;
 import com.interview.service.UserService;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
@@ -19,7 +22,7 @@ public class AdminController {
 
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private QuestionService questionService;
 
@@ -68,15 +71,25 @@ public class AdminController {
     /**
      * 管理员：审核题目（通过或拒绝）
      */
-    @PutMapping("/questions/{questionId}/review")
+    @PutMapping("/questions/review")
     @RequireRole(UserRoleEnum.ADMIN)
-    public Result<Question> reviewQuestion(
-            @PathVariable Long questionId,
-            @RequestParam Integer status,
+    public Result<String> reviewQuestion(
+            @RequestBody QuestionReviewDTO reviewDTO, // 接收前端传递的 JSON 参数
             Authentication authentication) {
+        // 从 DTO 中获取参数
+        List<Long> questionIds = reviewDTO.getQuestionIds();
+        Integer status = reviewDTO.getStatus();
         Long operatorId = (Long) authentication.getPrincipal();
         String operatorRole = authentication.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
-        return questionService.reviewQuestion(questionId, status, operatorId, operatorRole);
+        return questionService.reviewQuestion(questionIds, status, operatorId, operatorRole);
+    }
+
+    @Data
+    static class QuestionReviewDTO {
+        // 对应前端的 questionIds 数组
+        private List<Long> questionIds;
+        // 对应前端的 status 字段
+        private Integer status;
     }
 }
 

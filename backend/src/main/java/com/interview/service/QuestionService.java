@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -65,8 +67,8 @@ public class QuestionService {
                 wrapper.and(w -> w.like("title", keyword).or().like("tags", keyword));
             }
 
-            if(forHot!=null && forHot){
-                wrapper.orderByDesc("view_count","like_count", "comment_count", "collect_count");
+            if (forHot != null && forHot) {
+                wrapper.orderByDesc("view_count", "like_count", "comment_count", "collect_count");
             }
 
             if (forLatest != null && forLatest) {
@@ -210,14 +212,16 @@ public class QuestionService {
      * 管理员：审核题目（通过或拒绝）
      */
     @Transactional
-    public Result<Question> reviewQuestion(Long questionId, Integer status, Long operatorId, String operatorRole) {
+    public Result<String> reviewQuestion(List<Long> questionIds, Integer status, Long operatorId,
+            String operatorRole) {
         // 只有管理员可以审核
         if (!"ADMIN".equals(operatorRole) && !"SUPER_ADMIN".equals(operatorRole)) {
             return Result.error(ResultCode.PERMISSION_DENIED.getCode(), "只有管理员可以审核题目");
         }
 
-        Question question = questionMapper.selectById(questionId);
-        if (question == null) {
+        // 检查题目是否存在
+        List<Question> questions = questionMapper.selectBatchIds(questionIds);
+        if (questions.size() != questionIds.size()) {
             return Result.error(ResultCode.QUESTION_NOT_FOUND.getCode(), ResultCode.QUESTION_NOT_FOUND.getMessage());
         }
 
@@ -226,26 +230,38 @@ public class QuestionService {
             return Result.error(400, "审核状态无效");
         }
 
-        int dealNum = 0;
-        if ((question.getStatus() == 0 && status == 1) || question.getStatus() == 2 && status == 1) {
-            dealNum = 1;
-        } else if (question.getStatus() == 1 && status == 2) {
-            dealNum = -1;
-        }
-        Category category = categoryMapper.selectById(question.getCategoryId());
-        if (category == null) {
-            return Result.error(ResultCode.QUESTION_CATEGORY_NOT_FOUND.getCode(),
-                    ResultCode.QUESTION_CATEGORY_NOT_FOUND.getMessage());
-        }
-        // 增加分类的问题数量
-        category.setQuestionCount(category.getQuestionCount() + dealNum);
-        categoryMapper.updateById(category);
+        // 批量查询分类并映射为Map
+        List<Long> categoryIds = questions.stream().map(Question::getCategoryId).collect(Collectors.toList());
+        List<Category> categories = categoryMapper.selectBatchIds(categoryIds);
+        Map<Long, Category> categoryMap = categories.stream()
+                .collect(Collectors.toMap(Category::getId, category -> category));
 
-        question.setStatus(status);
-        question.setUpdateTime(LocalDateTime.now());
-        questionMapper.updateById(question);
+        // 检查题目是否已被审核
+        for (Question question : questions) {
+            int dealNum = 0;
+            if ((question.getStatus() == 0 && status == 1) || question.getStatus() == 2 && status == 1) {
+                dealNum = 1;
+            } else if (question.getStatus() == 1 && status == 2) {
+                dealNum = -1;
+            }
+            Category category = categoryMap.get(question.getCategoryId());
+            if (category == null) {
+                return Result.error(ResultCode.QUESTION_CATEGORY_NOT_FOUND.getCode(),
+                        ResultCode.QUESTION_CATEGORY_NOT_FOUND.getMessage());
+            }
+            // 增加分类的问题数量
+            category.setQuestionCount(category.getQuestionCount() + dealNum);
+
+            question.setStatus(status);
+            question.setUpdateTime(LocalDateTime.now());
+        }
+
+        // 批量更新题目
+        questionMapper.updateBatchById(questions);
+        // 批量更新分类
+        categoryMapper.updateBatchById(categories);
 
         String message = status == 1 ? "题目审核通过" : "题目审核拒绝";
-        return Result.success(message, question);
+        return Result.success(message);
     }
 }
