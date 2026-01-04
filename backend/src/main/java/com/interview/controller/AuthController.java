@@ -5,16 +5,16 @@ import com.interview.service.UserService;
 import com.interview.vo.LoginRequest;
 import com.interview.vo.LoginResponse;
 import com.interview.vo.RegisterRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
+    @Resource
     private UserService userService;
 
     @PostMapping("/register")

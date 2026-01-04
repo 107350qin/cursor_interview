@@ -2,11 +2,11 @@ import api from './api'
 
 export const questionService = {
   getQuestions: (params) => {
-    return api.get('/questions', { params })
+    return api.get('/com/get-questions', { params })
   },
   
   getQuestionById: (id) => {
-    return api.get(`/questions/${id}`)
+    return api.get(`/com/get-question/${id}`)
   },
   
   createQuestion: (data) => {
@@ -19,6 +19,9 @@ export const questionService = {
   
   deleteQuestion: (id) => {
     return api.delete(`/questions/${id}`)
+  },
+  getMockInterviewQuestions: (params) => {
+    return api.get('/com/mock-interviews', { params })
   },
 }
 

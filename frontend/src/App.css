@@ -1,0 +1,24 @@
+/* 解决滚动条导致的布局偏移问题 */
+body {
+  /* 始终显示滚动条，避免内容高度变化时出现/消失滚动条导致的布局偏移 */
+  overflow-y: scroll;
+  /* 为滚动条预留宽度，确保内容区域宽度一致 */
+  margin-right: calc(100vw - 100%);
+}
+
+/* 确保Layout组件的高度正确 */
+.ant-layout {
+  min-height: 100vh;
+}
+
+/* 确保Content区域的布局稳定性 */
+.ant-layout-content {
+  /* 使用固定的内边距，避免内容区域大小变化 */
+  padding: 24px;
+  background: #fff;
+}
+
+/* 确保菜单宽度一致 */
+.ant-menu-item {
+  min-width: fit-content;
+}

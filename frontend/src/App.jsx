@@ -2,27 +2,24 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Layout } from 'antd'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
-import HotQuestions from './pages/HotQuestions'
 import Categories from './pages/Categories'
-import LatestQuestions from './pages/LatestQuestions'
-import Category from './pages/Category'
-import QuestionDetail from './pages/QuestionDetail'
+import Questions from './pages/Questions'
 import AddQuestion from './pages/AddQuestion'
 import Profile from './pages/Profile'
 import MockInterview from './pages/MockInterview'
-import PermissionManagement from './pages/PermissionManagement'
-import QuestionReview from './pages/QuestionReview'
+import UserList from './pages/UserList'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import { useAuthStore } from './store/authStore'
+import { useIsMobile } from './utils/device'
+
+// 添加全局样式解决滚动条导致的布局偏移
+import './App.css'
 
 const { Content } = Layout
 
 function App() {
   const { isAuthenticated, role } = useAuthStore()
-  const isSuperAdmin = role === 'SUPER_ADMIN'
-  const isAdmin = role === 'ADMIN'
-  const isUser = role === 'USER'
 
   // 路由权限控制组件
   const ProtectedRoute = ({ children, requireAuth = false, allowedRoles = [] }) => {
@@ -38,11 +35,14 @@ function App() {
     return children
   }
 
+  // 使用公共的移动设备检测Hook
+  const isMobile = useIsMobile();
+
   return (
     <Router>
       <Layout style={{ minHeight: '100vh' }}>
         <Navbar />
-        <Content style={{ padding: '24px', background: '#fff' }}>
+        <Content style={{ padding: isMobile ? '10px' : '24px', background: '#fff' }}>
           <Routes>
             {/* 登录和注册路由 - 仅未登录用户可访问 */}
             <Route 
@@ -68,11 +68,8 @@ function App() {
             
             {/* 公共路由 - 所有用户（包括未登录）可访问 */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/hot-questions" element={<HotQuestions />} />
+            <Route path="/questions" element={<Questions />} />
             <Route path="/categories" element={<Categories />} />
-            <Route path="/latest-questions" element={<LatestQuestions />} />
-            <Route path="/category/:id" element={<Category />} />
-            <Route path="/question/:id" element={<QuestionDetail />} />
             
             {/* 需要登录的路由 - 普通用户、管理员、超级管理员均可访问 */}
             <Route 
@@ -104,20 +101,11 @@ function App() {
             <Route 
               path="/permission-management" 
               element={
-                <ProtectedRoute requireAuth={true} allowedRoles={['ADMIN', 'SUPER_ADMIN']}>
-                  <PermissionManagement />
+                <ProtectedRoute requireAuth={true} allowedRoles={['ADMIN']}>
+                  <UserList />
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/question-review" 
-              element={
-                <ProtectedRoute requireAuth={true} allowedRoles={['ADMIN', 'SUPER_ADMIN']}>
-                  <QuestionReview />
-                </ProtectedRoute>
-              } 
-            />
-            
             {/* 默认路由 */}
             <Route 
               path="*" 

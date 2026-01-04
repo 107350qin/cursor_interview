@@ -34,10 +34,10 @@ function AddQuestion() {
 
   // 处理分类选择（从下拉列表选择已有分类）
   const handleCategorySelect = (value) => {
-    const category = categories.find(cat => cat.name === value)
+    const category = categories.find(cat => cat === value)
     if (category) {
-      setCategoryInputValue(category.name)
-      form.setFieldValue('categoryId', category.id)
+      setCategoryInputValue(category)
+      form.setFieldValue('categoryName', category)
     }
   }
 
@@ -47,18 +47,18 @@ function AddQuestion() {
     
     // 如果输入框被清空，也清空表单值
     if (!value) {
-      form.setFieldValue('categoryId', undefined)
+      form.setFieldValue('categoryName', undefined)
       return
     }
 
     // 检查输入的内容是否完全匹配已有分类
     const exactMatch = categories.find(cat => cat.name === value)
     if (exactMatch) {
-      // 如果完全匹配，立即设置分类ID
-      form.setFieldValue('categoryId', exactMatch.id)
+      // 如果完全匹配，立即设置分类名称
+      form.setFieldValue('categoryName', exactMatch.name)
     } else {
-      // 如果不匹配，先清空分类ID，等待用户确认（失去焦点时创建）
-      form.setFieldValue('categoryId', undefined)
+      // 如果不匹配，先清空分类名称，等待用户确认（失去焦点时创建）
+      form.setFieldValue('categoryName', undefined)
     }
   }
 
@@ -66,16 +66,16 @@ function AddQuestion() {
   const handleCategoryBlur = () => {
     const value = categoryInputValue?.trim()
     if (!value) {
-      form.setFieldValue('categoryId', undefined)
+      form.setFieldValue('categoryName', undefined)
       return
     }
 
     // 检查是否是已有的分类
-    const existingCategory = categories.find(cat => cat.name === value)
+    const existingCategory = categories.find(cat => cat === value)
     
     if (existingCategory) {
-      // 如果找到已有分类，直接设置ID
-      form.setFieldValue('categoryId', existingCategory.id)
+      // 如果找到已有分类，直接设置名称
+      form.setFieldValue('categoryName', existingCategory)
     }
     // 如果是新分类，不在这里创建，等到提交问题时再创建
   }
@@ -115,7 +115,7 @@ function AddQuestion() {
         if (questionData.categoryName) {
           loadCategories()
         }
-        navigate('/')
+        navigate('/questions')
       } else {
         message.error(res.message || '创建失败')
       }
@@ -128,7 +128,7 @@ function AddQuestion() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '16px' }}>
-      <Card title="添加题目" bodyStyle={{ padding: '20px' }}>
+      <Card title="添加题目" styles={{ body: { padding: '20px' } }}>
         <Form
           form={form}
           layout="vertical"
@@ -166,14 +166,11 @@ function AddQuestion() {
                 <AutoComplete
                   value={categoryInputValue}
                   options={categories.map(cat => ({
-                    value: cat.name,
-                    label: cat.name
+                    value: cat,
+                    label: cat
                   }))}
                   placeholder="请选择或输入分类名称"
                   allowClear
-                  filterOption={(inputValue, option) =>
-                    option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-                  }
                   onSelect={handleCategorySelect}
                   onChange={handleCategoryChange}
                   onBlur={handleCategoryBlur}

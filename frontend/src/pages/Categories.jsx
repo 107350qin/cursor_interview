@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Card, Typography, Space } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { categoryService } from '../services/categoryService'
+import { useIsMobile } from '../utils/device'
 
 const { Title, Paragraph } = Typography
 
@@ -15,7 +16,7 @@ function Categories() {
 
   const loadCategories = async () => {
     try {
-      const res = await categoryService.getAllCategories()
+      const res = await categoryService.getCategoryStatistic()
       if (res.code === 200) {
         setCategories(res.data)
       }
@@ -24,18 +25,26 @@ function Categories() {
     }
   }
 
+  // 使用公共的移动设备检测Hook
+  const isMobile = useIsMobile();
+
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      <Card title={`总共 ${categories.length} 个分类，${categories.reduce((acc, cur) => acc + cur.questionCount, 0)} 道题目`} style={{ marginBottom: '24px' }}>
-        <Space wrap>
+    <div style={{ padding: '0 10px', maxWidth: '1200px'}}>
+      <Card title={`总共 ${categories.length} 个分类，${categories.reduce((acc, cur) => acc + cur.count, 0)} 道题目`} style={{ marginBottom: '24px' }}>
+        <Space wrap style={{ width: '100%', justifyContent: 'left' }}>
           {categories.map(cat => (
             <Card.Grid
-              key={cat.id}
-              style={{ width: '200px', textAlign: 'center', cursor: 'pointer' }}
-              onClick={() => navigate(`/category/${cat.id}`)}
+              key={cat.name}
+              style={{ 
+                width: isMobile ? '140px' : '200px', 
+                textAlign: 'center', 
+                cursor: 'pointer',
+                margin: '8px',
+              }}
+              onClick={() => navigate(`/questions?category=${encodeURIComponent(cat.name)}`)}
             >
-              <Title level={4}>{cat.name}</Title>
-              <Paragraph type="secondary">{cat.questionCount} 道题目</Paragraph>
+              <Title level={4} style={{ fontSize: isMobile ? '16px' : '18px', marginBottom: '8px' }}>{cat.name}</Title>
+              <Paragraph type="secondary" style={{ fontSize: isMobile ? '12px' : '14px', margin: 0 }}>{cat.count} 道题目</Paragraph>
             </Card.Grid>
           ))}
         </Space>

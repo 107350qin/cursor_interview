@@ -3,6 +3,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { useNavigate, Link } from 'react-router-dom'
 import { authService } from '../services/authService'
 import { useAuthStore } from '../store/authStore'
+import { useIsMobile } from '../utils/device'
 
 function Login() {
   const navigate = useNavigate()
@@ -23,14 +24,17 @@ function Login() {
     }
   }
 
+  // 使用公共的移动设备检测Hook
+  const isMobile = useIsMobile();
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-      <Card title="登录" style={{ width: 400 }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', padding: isMobile ? '0 10px' : '0' }}>
+      <Card title="登录" style={{ width: isMobile ? '100%' : 400, maxWidth: 400 }}>
         <Form
           name="login"
           onFinish={onFinish}
           autoComplete="off"
-          size="large"
+          size={isMobile ? 'middle' : 'large'}
         >
           <Form.Item
             name="username"

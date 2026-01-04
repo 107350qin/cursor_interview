@@ -1,5 +1,5 @@
 import { Card, Typography, Space, Row, Col } from 'antd'
-import { BookOutlined, PlusOutlined, EditOutlined, HeartOutlined, StarOutlined, CommentOutlined } from '@ant-design/icons'
+import { BookOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons'
 
 const { Title, Paragraph } = Typography
 
@@ -82,24 +82,6 @@ function HomePage() {
                 }}
                 bodyStyle={{ padding: '30px 20px' }}
               >
-                <PlusOutlined style={{ fontSize: '48px', color: '#52c41a', marginBottom: '16px' }} />
-                <Title level={4} style={{ marginBottom: '12px' }}>分享题目</Title>
-                <Paragraph type="secondary" style={{ margin: 0 }}>
-                  分享您遇到的面试题目，帮助其他开发者学习，共同构建知识社区
-                </Paragraph>
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={8}>
-              <Card
-                hoverable
-                style={{ 
-                  textAlign: 'center', 
-                  height: '100%',
-                  borderRadius: '8px',
-                  border: '1px solid #f0f0f0'
-                }}
-                bodyStyle={{ padding: '30px 20px' }}
-              >
                 <EditOutlined style={{ fontSize: '48px', color: '#faad14', marginBottom: '16px' }} />
                 <Title level={4} style={{ marginBottom: '12px' }}>模拟面试</Title>
                 <Paragraph type="secondary" style={{ margin: 0 }}>
@@ -118,46 +100,10 @@ function HomePage() {
                 }}
                 bodyStyle={{ padding: '30px 20px' }}
               >
-                <HeartOutlined style={{ fontSize: '48px', color: '#f5222d', marginBottom: '16px' }} />
-                <Title level={4} style={{ marginBottom: '12px' }}>点赞收藏</Title>
+                <PlusOutlined style={{ fontSize: '48px', color: '#52c41a', marginBottom: '16px' }} />
+                <Title level={4} style={{ marginBottom: '12px' }}>新增题目</Title>
                 <Paragraph type="secondary" style={{ margin: 0 }}>
-                  为优质题目点赞，收藏重要内容，方便随时回顾和复习
-                </Paragraph>
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={8}>
-              <Card
-                hoverable
-                style={{ 
-                  textAlign: 'center', 
-                  height: '100%',
-                  borderRadius: '8px',
-                  border: '1px solid #f0f0f0'
-                }}
-                bodyStyle={{ padding: '30px 20px' }}
-              >
-                <StarOutlined style={{ fontSize: '48px', color: '#722ed1', marginBottom: '16px' }} />
-                <Title level={4} style={{ marginBottom: '12px' }}>个人中心</Title>
-                <Paragraph type="secondary" style={{ margin: 0 }}>
-                  管理您的个人信息，查看发布的题目、收藏的内容和学习记录
-                </Paragraph>
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={8}>
-              <Card
-                hoverable
-                style={{ 
-                  textAlign: 'center', 
-                  height: '100%',
-                  borderRadius: '8px',
-                  border: '1px solid #f0f0f0'
-                }}
-                bodyStyle={{ padding: '30px 20px' }}
-              >
-                <CommentOutlined style={{ fontSize: '48px', color: '#13c2c2', marginBottom: '16px' }} />
-                <Title level={4} style={{ marginBottom: '12px' }}>互动交流</Title>
-                <Paragraph type="secondary" style={{ margin: 0 }}>
-                  查看题目解析，参与讨论，与其他开发者交流学习心得和经验
+                  分享您遇到的面试题目，帮助其他开发者学习，共同构建知识社区
                 </Paragraph>
               </Card>
             </Col>
@@ -169,13 +115,3 @@ function HomePage() {
 }
 
 export default HomePage
-
-
-
-
-
-
-
-
-
-
