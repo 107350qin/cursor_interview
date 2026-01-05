@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState, useEffect } from 'react'
 
 /**
  * 检测是否为移动设备
@@ -13,7 +13,17 @@ export const isMobileDevice = () => {
  * @returns {boolean} 是否为移动设备
  */
 export const useIsMobile = () => {
-  return useMemo(() => {
-    return isMobileDevice()
+  const [isMobile, setIsMobile] = useState(isMobileDevice())
+
+  useEffect(() => {
+    // 监听窗口大小变化
+    const handleResize = () => {
+      setIsMobile(isMobileDevice())
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  return isMobile
 }

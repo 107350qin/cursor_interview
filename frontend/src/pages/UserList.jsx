@@ -72,28 +72,36 @@ function UserList() {
     return <Tag color={roleInfo.color}>{roleInfo.text}</Tag>
   }
 
+  const isMobile = useIsMobile();
+
   const columns = [
     {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
       width: 80,
+      responsive: ['md'],
     },
     {
       title: '用户名',
       dataIndex: 'username',
       key: 'username',
+      ellipsis: true,
     },
     {
       title: '邮箱',
       dataIndex: 'email',
       key: 'email',
+      ellipsis: true,
+      responsive: ['md'],
     },
     {
       title: '手机号',
       dataIndex: 'phone',
       key: 'phone',
       render: (text) => text || '-',
+      ellipsis: true,
+      responsive: ['lg'],
     },
     {
       title: '角色',
@@ -116,7 +124,7 @@ function UserList() {
     {
       title: '操作',
       key: 'action',
-      width: 300,
+      width: isMobile ? 120 : 300,
       render: (_, record) => {
         // 如果是是普通用户且状态为NEW，则可点击审核通过将其状态改为OK，如果是普通用户且状态为OK则可以点击取消审核将其状态改为NEW，如果是管理员则不能进行任何操作无按钮
         if (record.role === 'USER') {
@@ -133,8 +141,9 @@ function UserList() {
                     type="link"
                     success
                     icon={<CheckCircleOutlined />}
+                    size={isMobile ? 'small' : 'middle'}
                   >
-                    审核通过
+                    {isMobile ? '通过' : '审核通过'}
                   </Button>
                 </Popconfirm>
               </Space>
@@ -152,8 +161,9 @@ function UserList() {
                     type="link"
                     danger
                     icon={<CloseCircleOutlined />}
+                    size={isMobile ? 'small' : 'middle'}
                   >
-                    取消审核
+                    {isMobile ? '取消' : '取消审核'}
                   </Button>
                 </Popconfirm>
               </Space>
@@ -165,8 +175,6 @@ function UserList() {
       },
     },
   ]
-
-  const isMobile = useIsMobile();
 
   return (
     <div>
@@ -193,7 +201,7 @@ function UserList() {
           current: pagination.current,
           pageSize: pagination.pageSize,
           total: pagination.total,
-          showSizeChanger: true,
+          showSizeChanger: !isMobile,
           showTotal: (total) => `共 ${total} 条`,
           onChange: (page, pageSize) => {
             setPagination({
@@ -202,7 +210,10 @@ function UserList() {
               pageSize: pageSize,
             })
           },
+          size: isMobile ? 'small' : 'default',
         }}
+        scroll={{ x: isMobile ? 500 : undefined }}
+        size={isMobile ? 'small' : 'default'}
       />
     </div>
   )
