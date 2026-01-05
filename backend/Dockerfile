@@ -28,7 +28,8 @@ RUN chown -R appuser:appgroup /app
 
 # 暴露端口
 ENV SERVER_PORT=8080
-ENV DB_URL="jdbc:mysql://mysql6.sqlpub.com:3311/interview_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true"
+ENV DB_HOST=mysql6.sqlpub.com
+ENV DB_PORT=3311
 ENV DB_USERNAME=qinmeng
 ENV DB_PASSWORD=IXZ2Bfy99dwdRf8P
 
