@@ -28,6 +28,10 @@ RUN chown -R appuser:appgroup /app
 
 # 暴露端口
 ENV SERVER_PORT=8080
+ENV DB_URL="jdbc:mysql://mysql6.sqlpub.com:3311/interview_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true"
+ENV DB_USERNAME=qinmeng
+ENV DB_PASSWORD=IXZ2Bfy99dwdRf8P
+
 
 EXPOSE ${SERVER_PORT}
 
@@ -40,8 +44,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 USER appuser
 
 # 启动应用
-ENTRYPOINT ["java", "-jar", "app.jar", \
-            "--server.port=${SERVER_PORT}", \
-            "--spring.datasource.url=${DB_URL}", \
-            "--spring.datasource.username=${DB_USERNAME}", \
-            "--spring.datasource.password=${DB_PASSWORD}"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
