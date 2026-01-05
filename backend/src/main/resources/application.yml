@@ -10,24 +10,14 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/interview_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: root
-  
-  # Redis配置
-  redis:
-    host: localhost
-    port: 6379
-    password: 
-    database: 0
-    timeout: 3000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+    url: ${DB_URL:jdbc:mysql://localhost:3306/interview_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    # 最大连接数
+    hikari:
+      maximum-pool-size: 30
 
+  
 # MyBatis Plus配置
 mybatis-plus:
   configuration:
@@ -43,8 +33,8 @@ mybatis-plus:
 
 # JWT配置
 jwt:
-  secret: interview-secret-key-2024-please-change-in-production-abcdefghijklmnopqrstuvwxyz0123456789!@#$%
-  expiration: 86400000 # 24小时，单位：毫秒
+  secret: ${JWT_SECRET:interview-secret-key-2024-please-change-in-production-abcdefghijklmnopqrstuvwxyz0123456789!@#$%}
+  expiration: ${JWT_EXPIRATION:86400000} # 24小时，单位：毫秒
 
 # 文件上传配置
 spring.servlet.multipart:
@@ -58,4 +48,3 @@ logging:
     org.springframework.security: debug
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"
-

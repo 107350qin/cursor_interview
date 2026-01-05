@@ -42,6 +42,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // 白名单接口 - 无需认证即可访问
+                .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .antMatchers("/auth/login", "/auth/register").permitAll()
                 // 默认api开头的接口所有人可访问
                 .antMatchers("/com/**").permitAll()

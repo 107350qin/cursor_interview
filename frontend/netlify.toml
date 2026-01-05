@@ -1,0 +1,4 @@
+[build]
+base = "frontend"
+command = "npm run build"
+publish = "dist"  # 注意：这里写相对路径（相对于base directory）
