@@ -262,6 +262,20 @@ function Questions() {
   // 使用公共的移动设备检测Hook
   const isMobile = useIsMobile();
 
+  // 确保模态框出现时不会影响页面的滚动条设置
+  useEffect(() => {
+    // 保存原始的body overflow样式
+    const originalOverflow = document.body.style.overflow;
+    
+    // 无论模态框是否打开，都保持body的overflow为scroll
+    document.body.style.overflow = 'scroll';
+    
+    return () => {
+      // 组件卸载时恢复原始的body样式
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isEditModalVisible, questionDetailShow]);
+
   return (
     <div style={{ padding: '10px', maxWidth: '1200px', margin: '0 auto' }}>
       {/* 筛选条件 */}
@@ -474,6 +488,8 @@ function Questions() {
         onCancel={() => setQuestionDetailShow(false)}
         footer={null}
         width={isMobile ? '90%' : 600}
+        getContainer={document.body}
+        bodyStyle={{ overflowY: 'auto' }}
       >
         <div>
           {selectedQuestion && (
@@ -496,6 +512,8 @@ function Questions() {
         onCancel={() => setIsEditModalVisible(false)}
         footer={null}
         width={isMobile ? '90%' : 600}
+        getContainer={document.body}
+        bodyStyle={{ overflowY: 'auto' }}
       >
         <div>
           <Form

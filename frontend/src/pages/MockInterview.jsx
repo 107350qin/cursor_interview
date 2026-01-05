@@ -62,6 +62,20 @@ function MockInterview() {
     setExpandedQuestions(newExpanded)
   }
 
+  // 确保模态框出现时不会影响页面的滚动条设置
+  useEffect(() => {
+    // 保存原始的body overflow样式
+    const originalOverflow = document.body.style.overflow;
+    
+    // 无论模态框是否打开，都保持body的overflow为scroll
+    document.body.style.overflow = 'scroll';
+    
+    return () => {
+      // 组件卸载时恢复原始的body样式
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [modalVisible]);
+
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto' }}>
       <Card title="创建模拟面试">
@@ -116,6 +130,8 @@ function MockInterview() {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         width={800}
+        getContainer={document.body}
+        bodyStyle={{ overflowY: 'auto' }}
         footer={[
           <Button key="close" onClick={() => setModalVisible(false)}>
             关闭
