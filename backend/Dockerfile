@@ -11,11 +11,14 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # 第二阶段：运行阶段
-FROM openjdk:8-jre-alpine
+FROM adoptopenjdk:8-jre-hotspot
 WORKDIR /app
 
+# 安装curl用于健康检查
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # 创建非root用户
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 # 复制构建产物
 COPY --from=build /app/target/*.jar app.jar
@@ -30,7 +33,7 @@ EXPOSE ${SERVER_PORT}
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD wget -qO- http://localhost:${SERVER_PORT}/api/actuator/health || exit 1
+    CMD curl -f http://localhost:${SERVER_PORT}/api/actuator/health || exit 1
 
 
 # 切换到非root用户
