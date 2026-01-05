@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { Table, Tag, Typography, Button, Space, Modal, Pagination, message, Form, Input, Select, AutoComplete, Row, Col, Descriptions } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { questionService } from '../services/questionService'
@@ -8,13 +8,10 @@ import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons'
 import { useIsMobile } from '../utils/device'
 
 const { TextArea } = Input
-const { Option } = Select
 
-const { Title } = Typography
 const { Column } = Table
 
 function Questions() {
-  const navigate = useNavigate()
   const location = useLocation()
   const { isAuthenticated, userId, role } = useAuthStore()
   const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN'
@@ -23,7 +20,6 @@ function Questions() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [total, setTotal] = useState(0)
-  const [sortBy, setSortBy] = useState('latest') // 默认最新发布
   // 筛选条件状态
   const [searchKeyword, setSearchKeyword] = useState('')
   const [selectedCategory, setSelectedCategory] = useState(null)
@@ -226,7 +222,7 @@ function Questions() {
   useEffect(() => {
     loadQuestions()
     loadCategories()
-  }, [currentPage, pageSize, sortBy, selectedCategory])
+  }, [currentPage, pageSize, sortBy, selectedCategory, selectedDifficulty])
 
   const loadQuestions = async () => {
     try {
@@ -326,21 +322,6 @@ function Questions() {
             <Select.Option value="HARD">困难</Select.Option>
           </Select>
         </div>
-
-        {/* 筛选按钮：固定宽度，保证按钮样式统一 */}
-        <div style={{ width: isMobile ? '100%' : '100px', minWidth: '80px' }}>
-          <Button
-            type="primary"
-            onClick={() => {
-              setCurrentPage(1);
-              loadQuestions();
-            }}
-            size={isMobile ? 'small' : 'middle'}
-            style={{ width: '100%' }}
-          >
-            筛选
-          </Button>
-        </div>
       </div>
 
       {/* 题目列表 */}
@@ -388,7 +369,10 @@ function Questions() {
           width={isMobile ? 70 : 100}
           render={(difficulty) => (
             <Tag color={getDifficultyColor(difficulty)} style={{ margin: 0 }}>
-              {difficulty}
+              {difficulty === 'EASY' ? '简单' :
+               difficulty === 'MEDIUM' ? '中等' :
+               difficulty === 'HARD' ? '困难' :
+               difficulty}
             </Tag>
           )}
         />
