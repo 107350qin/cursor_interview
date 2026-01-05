@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState} from 'react'
 import { Table, Tag, Typography, Button, Space, Modal, Pagination, message, Form, Input, Select, AutoComplete, Row, Col, Descriptions } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { questionService } from '../services/questionService'
@@ -222,7 +222,7 @@ function Questions() {
   useEffect(() => {
     loadQuestions()
     loadCategories()
-  }, [currentPage, pageSize, sortBy, selectedCategory, selectedDifficulty])
+  }, [currentPage, pageSize, selectedCategory, selectedDifficulty])
 
   const loadQuestions = async () => {
     try {
@@ -230,7 +230,6 @@ function Questions() {
       const res = await questionService.getQuestions({
         page: currentPage,
         size: pageSize,
-        sortBy: sortBy,
         keyword: searchKeyword,
         categoryName: selectedCategory,
         difficulty: selectedDifficulty,
@@ -286,6 +285,11 @@ function Questions() {
             allowClear
             size={isMobile ? 'small' : 'middle'}
             enterButton={<SearchOutlined />}
+            // 点击搜索按钮后，重置到第一页
+            onSearch={() => {
+              setCurrentPage(1);
+              loadQuestions();
+            }}
           />
         </div>
 
