@@ -5,7 +5,6 @@
 *.war
 *.ear
 target/
-.idea/
 *.iml
 *.iws
 *.ipr
@@ -22,6 +21,7 @@ build/
 
 # IDE
 .vscode/
+.trae/
 .idea/
 *.swp
 *.swo
