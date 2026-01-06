@@ -178,29 +178,6 @@ npm run dev
 
 ## 部署
 
-### Docker 部署（推荐）
-
-1. 构建后端镜像：
-```bash
-cd backend
-mvn clean package
-docker build -t interview-backend .
-```
-
-2. 构建前端镜像：
-```bash
-cd frontend
-npm run build
-docker build -t interview-frontend .
-```
-
-3. 使用 docker-compose 启动：
-```bash
-docker-compose up -d
-```
-
-### 传统部署
-
 1. 后端：
    - 打包：`mvn clean package`
    - 运行：`java -jar target/interview-backend-1.0.0.jar`
