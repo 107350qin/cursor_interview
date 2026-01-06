@@ -7,19 +7,24 @@ import { useState, useEffect } from 'react'
 export const isMobileDevice = () => {
   if (typeof window === 'undefined') return false
   
-  // 检测移动设备的多种方法
-  const isMobileWidth = window.innerWidth < 768
-  const isMobileHeight = window.innerHeight < 600
-  const hasMobileAspectRatio = window.innerWidth / window.innerHeight > 1.5 && window.innerWidth < 1024
+  const width = window.innerWidth
+  const height = window.innerHeight
   const userAgent = window.navigator.userAgent.toLowerCase()
-  const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)
   
-  // 综合判断：
-  // 1. 屏幕宽度小于768px
-  // 2. 或者屏幕高度小于600px（横屏情况）
-  // 3. 或者宽高比大于1.5且宽度小于1024px（横屏平板）
-  // 4. 或者通过user agent检测到是移动设备
-  return isMobileWidth || isMobileHeight || hasMobileAspectRatio || isMobileUA
+  // 检测是否为移动设备的 user agent
+  const isMobileUA = /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent)
+  const isTabletUA = /ipad|android(?!.*mobile)|tablet/i.test(userAgent)
+  
+  // 基础判断：宽度小于768px
+  if (width < 768) return true
+  
+  // 如果是移动设备或平板设备，且横屏时宽度小于1024px，仍然认为是移动端
+  if ((isMobileUA || isTabletUA) && width < 1024) return true
+  
+  // 如果是移动设备，且高度小于500px（横屏情况），认为是移动端
+  if (isMobileUA && height < 500) return true
+  
+  return false
 }
 
 /**
